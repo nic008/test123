@@ -115,14 +115,23 @@
       0% { box-shadow: 0 0 0 0 rgba(109,131,242,0.18); }
       100% { box-shadow: 0 8px 36px 0 rgba(109,131,242,0.19); }
     }
+    .card-image-wrapper {
+      width: 100%;
+      aspect-ratio: 304/425;
+      background: #f3f6fb;
+      border-radius: 16px 16px 0 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .card img {
       width: 100%;
-      height: 140px;
+      height: 100%;
       object-fit: cover;
-      border-radius: 16px 16px 0 0;
-      background: #f3f6fb;
       display: block;
       transition: filter .18s;
+      background: #f3f6fb;
     }
     .card.selected img {
       filter: brightness(1.08) saturate(1.13) drop-shadow(0 0 8px #b5c7f7cc);
@@ -199,7 +208,7 @@
     }
     @media (max-width: 900px) {
       .container { padding: 16px 2px 0 2px; }
-      .card img { height: 100px; }
+      .card-image-wrapper { aspect-ratio: 304/425; }
       .card { min-width: 90px; }
     }
     @media (max-width: 600px) {
@@ -216,8 +225,11 @@
         max-width: 100%;
         margin: 0;
       }
+      .card-image-wrapper {
+        aspect-ratio: 304/425;
+        border-radius: 12px 12px 0 0;
+      }
       .card img {
-        height: 70px;
         border-radius: 12px 12px 0 0;
       }
       .card-label {
@@ -243,11 +255,20 @@
   </div>
   <script>
     // 卡牌图片和标签（这里只用占位图片，实际可替换为真实卡牌图片URL）
-    const cardData = Array.from({length: 80}, (_, i) => ({
-      id: i + 1,
-      img: `https://picsum.photos/seed/card${i+1}/200/140`, // 占位图片
-      label: `卡牌 ${i+1}`
-    }));
+    const cardData = Array.from({length: 80}, (_, i) => {
+      if (i < 3) {
+        return {
+          id: i + 1,
+          img: `./${i+1}.webp`,
+          label: `卡牌 ${i+1}`
+        }
+      }
+      return {
+        id: i + 1,
+        img: `https://picsum.photos/seed/card${i+1}/304/425`, // 占位图片
+        label: `卡牌 ${i+1}`
+      }
+    });
     const cardGrid = document.getElementById('cardGrid');
     const selectedCount = document.getElementById('selectedCount');
     const submitBtn = document.getElementById('submitBtn');
@@ -283,7 +304,9 @@
         cardDiv.setAttribute('data-id', card.id);
         if (selected.includes(card.id)) cardDiv.classList.add('selected');
         cardDiv.innerHTML = `
-          <img data-src="${card.img}" alt="${card.label}" loading="lazy" />
+          <div class="card-image-wrapper">
+            <img data-src="${card.img}" alt="${card.label}" loading="lazy" />
+          </div>
           <div class="checkmark">✔</div>
           <div class="card-label">${card.label}</div>
         `;
