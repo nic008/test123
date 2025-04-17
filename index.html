@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>欧卡牌心理测试</title>
+  <link href="https://fonts.googleapis.com/css?family=Nunito:400,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6D83F2;
+      --primary-soft: #eaf0ff;
+      --accent: #F7C873;
+      --card-bg: #fcfcfe;
+      --card-selected: #e7f0ff;
+      --card-shadow: 0 4px 18px rgba(100,120,180,0.08);
+      --card-selected-shadow: 0 6px 24px rgba(109,131,242,0.16);
+      --border-radius: 20px;
+      --transition: 0.22s cubic-bezier(.4,0,.2,1);
+      --text-main: #27314b;
+      --text-secondary: #7c8ba0;
+      --background: linear-gradient(135deg, #f3f6fb 0%, #e7ecf8 100%);
+    }
+    html, body {
+      padding: 0;
+      margin: 0;
+      font-family: 'Nunito', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+      background: var(--background);
+      color: var(--text-main);
+      min-height: 100vh;
+      box-sizing: border-box;
+      letter-spacing: 0.03em;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 38px 18px 0 18px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: rgba(255,255,255,0.66);
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 2px 24px 0 rgba(120,140,180,0.04);
+    }
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .title {
+      font-size: 2.3rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: 1.2px;
+      color: var(--primary);
+      text-shadow: 0 2px 12px rgba(109,131,242,0.07);
+    }
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.13rem;
+      margin-bottom: 0;
+      font-weight: 400;
+    }
+    .selected-count {
+      text-align: right;
+      font-size: 1.13rem;
+      color: var(--primary);
+      margin: 14px 0 10px 0;
+      font-weight: 600;
+      background: var(--primary-soft);
+      border-radius: 12px;
+      padding: 6px 18px 6px 0;
+      box-shadow: 0 1px 4px rgba(109,131,242,0.04);
+      display: inline-block;
+      float: right;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 22px;
+      width: 100%;
+      margin-bottom: 36px;
+      flex: 1;
+      justify-items: center;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--card-shadow);
+      transition: box-shadow var(--transition), border var(--transition), outline var(--transition), transform .18s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      outline: none;
+      min-width: 120px;
+      min-height: 188px;
+      will-change: transform;
+    }
+    .card:hover {
+      box-shadow: 0 8px 32px 0 rgba(109,131,242,0.13);
+      transform: translateY(-4px) scale(1.025);
+    }
+    .card.selected {
+      border: 2.5px solid var(--primary);
+      box-shadow: 0 8px 36px 0 rgba(109,131,242,0.19);
+      background: var(--card-selected);
+      z-index: 1;
+      animation: selectedGlow 0.33s;
+    }
+    @keyframes selectedGlow {
+      0% { box-shadow: 0 0 0 0 rgba(109,131,242,0.18); }
+      100% { box-shadow: 0 8px 36px 0 rgba(109,131,242,0.19); }
+    }
+    .card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 16px 16px 0 0;
+      background: #f3f6fb;
+      display: block;
+      transition: filter .18s;
+    }
+    .card.selected img {
+      filter: brightness(1.08) saturate(1.13) drop-shadow(0 0 8px #b5c7f7cc);
+    }
+    .card-label {
+      font-size: 1.07rem;
+      color: var(--text-secondary);
+      margin: 12px 0 14px 0;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      text-align: center;
+    }
+    .card .checkmark {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 30px;
+      height: 30px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.18rem;
+      box-shadow: 0 2px 8px rgba(109,131,242,0.13);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition);
+    }
+    .card.selected .checkmark {
+      opacity: 1;
+    }
+    .submit-btn {
+      display: none;
+      width: 100%;
+      max-width: 320px;
+      margin: 36px auto 0 auto;
+      padding: 15px 0;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 32px;
+      font-size: 1.22rem;
+      font-weight: 700;
+      letter-spacing: 1.1px;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(109,131,242,0.09);
+      transition: background .18s, color .18s, box-shadow .18s;
+    }
+    .submit-btn.active {
+      display: block;
+      background: linear-gradient(90deg, #ffd166 0%, #ffe6a1 100%);
+      color: var(--primary);
+      box-shadow: 0 8px 36px rgba(247,200,115,0.13);
+    }
+    .submit-btn:active {
+      background: #ffe6a1;
+      color: #5C7AEA;
+    }
+    .submit-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    footer {
+      text-align: center;
+      color: #b0b8c9;
+      font-size: 1rem;
+      margin: 44px 0 14px 0;
+      letter-spacing: 0.2px;
+      flex-shrink: 0;
+      font-weight: 400;
+      background: none;
+    }
+    @media (max-width: 900px) {
+      .container { padding: 16px 2px 0 2px; }
+      .card img { height: 100px; }
+      .card { min-width: 90px; }
+    }
+    @media (max-width: 600px) {
+      .title { font-size: 1.15rem; }
+      .card-grid { gap: 8px; }
+      .card img { height: 66px; }
+      .card-label { font-size: 0.93rem; }
+      .container { border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="title">欧卡牌心理测试</div>
+      <div class="subtitle">请从下方80张卡牌中，选择8张你最满意、最有感觉的卡牌。选中后再次点击可取消选择。</div>
+    </header>
+    <div class="selected-count" id="selectedCount">已选 0 / 8</div>
+    <div class="card-grid" id="cardGrid">
+      <!-- 卡牌将由JS生成 -->
+    </div>
+    <button class="submit-btn" id="submitBtn">提交</button>
+    <footer>© 2025 心理测评平台 All Rights Reserved.</footer>
+  </div>
+  <script>
+    // 卡牌图片和标签（这里只用占位图片，实际可替换为真实卡牌图片URL）
+    const cardData = Array.from({length: 80}, (_, i) => ({
+      id: i + 1,
+      img: `https://picsum.photos/seed/card${i+1}/200/140`, // 占位图片
+      label: `卡牌 ${i+1}`
+    }));
+    const cardGrid = document.getElementById('cardGrid');
+    const selectedCount = document.getElementById('selectedCount');
+    const submitBtn = document.getElementById('submitBtn');
+    let selected = [];
+
+    // 懒加载图片
+    function lazyLoadImages() {
+      const imgs = document.querySelectorAll('img[data-src]');
+      const config = {
+        rootMargin: '50px 0px',
+        threshold: 0.01
+      };
+      let observer = new IntersectionObserver((entries, self) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+            self.unobserve(img);
+          }
+        });
+      }, config);
+      imgs.forEach(img => observer.observe(img));
+    }
+
+    // 渲染卡牌
+    function renderCards() {
+      cardGrid.innerHTML = '';
+      cardData.forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        cardDiv.tabIndex = 0;
+        cardDiv.setAttribute('data-id', card.id);
+        if (selected.includes(card.id)) cardDiv.classList.add('selected');
+        cardDiv.innerHTML = `
+          <img data-src="${card.img}" alt="${card.label}" loading="lazy" />
+          <div class="checkmark">✔</div>
+          <div class="card-label">${card.label}</div>
+        `;
+        cardDiv.addEventListener('click', () => toggleSelect(card.id));
+        cardDiv.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleSelect(card.id);
+          }
+        });
+        cardGrid.appendChild(cardDiv);
+      });
+      lazyLoadImages();
+    }
+
+    // 切换选择状态
+    function toggleSelect(id) {
+      const idx = selected.indexOf(id);
+      if (idx > -1) {
+        selected.splice(idx, 1);
+      } else {
+        if (selected.length >= 8) return;
+        selected.push(id);
+      }
+      updateUI();
+    }
+
+    // 更新UI
+    function updateUI() {
+      renderCards();
+      selectedCount.textContent = `已选 ${selected.length} / 8`;
+      if (selected.length === 8) {
+        submitBtn.classList.add('active');
+      } else {
+        submitBtn.classList.remove('active');
+      }
+    }
+
+    // 提交选择
+    submitBtn.addEventListener('click', () => {
+      if (selected.length !== 8) return;
+      // 模拟提交
+      submitBtn.textContent = '提交中...';
+      submitBtn.disabled = true;
+      setTimeout(() => {
+        alert('已提交！您选择的卡牌编号为：' + selected.join(', '));
+        submitBtn.textContent = '提交';
+        submitBtn.disabled = false;
+      }, 1200);
+      // 实际应用中可用fetch/ajax提交到后端
+    });
+
+    // 首次渲染
+    updateUI();
+  </script>
+</body>
+</html>
